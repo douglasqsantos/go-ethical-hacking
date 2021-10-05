@@ -1,0 +1,7 @@
+build
+.dockerignore
+Dockerfile
+Dockerfile.prod
+docker-compose.prod.yaml
+docker-compose.yaml
+dbdata/

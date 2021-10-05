@@ -1,0 +1,67 @@
+# docker compose -f docker-compose.yml up -d --build --remove-orphans
+# docker compose -f docker-compose.yml up -d --remove-orphans
+# docker compose up
+version: '3.9'
+services:
+# Api Container
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: always
+    environment:
+      GO_DB_HOST: ${GO_DB_HOST:-mysql}
+      GO_DB_PORT: ${GO_DB_PORT:-3306}
+      GO_DB_USERNAME: ${GO_DB_USERNAME:-db_user}
+      GO_DB_PASSWORD: ${GO_DB_PASSWORD:-db_password}
+      GO_DB_NAME: ${GO_DB_NAME:-db_go_ethical_hacking}
+      GO_DB_OPTS: ${GO_DB_OPTS:-charset=utf8mb4&parseTime=True&loc=Local}
+      GO_DB_TYPE: ${GO_DB_TYPE:-mysql}
+      GO_APP_TZ: ${GO_APP_TZ:-America/Sao_Paulo}
+      GO_APP_JWT_KEY: ${GO_APP_JWT_KEY:-iODrEIa1zG5ZbA9HrdIzCV3REtxCdKMtdzbj0qGGjbURjACUF2YzeVvvMNV3AT1}
+    ports:
+      - "8000:${GO_APP_PORT:-8000}"
+    volumes:
+      - .:/app
+    depends_on:
+#      - postgresql
+      - mysql
+#      - redis
+# MySQL Container
+  mysql:
+    image: mysql:5.7.22
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-db_go_api_template}
+      MYSQL_USER: ${MYSQL_USER:-db_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-db_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    volumes:
+      - ./dbdata/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    ports:
+      - "3306:3306"
+# PostgreSQL Container
+#  postgresql:
+#    image: postgres:12-alpine
+#    restart: always
+#    environment:
+#      POSTGRES_DB: ${POSTGRES_DB:-db_go_api_template}
+#      POSTGRES_USER: ${POSTGRES_USER:-db_user}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-db_password}
+#    volumes:
+#      - ./dbdata/pgsql:/var/lib/postgresql/data
+#    ports:
+#      - "5432:5432"
+#    healthcheck:
+#      test: pg_isready -h 127.0.0.1
+#      timeout: 20s
+#      retries: 10
+#  Redis Container
+#  redis:
+#    image: redis:latest
+#    ports:
+#      - "6379:6379"
